@@ -1,0 +1,7 @@
+node_modules/
+bundle.js
+git/
+*~
+config/
+npm-debug.log
+.DS_Store
