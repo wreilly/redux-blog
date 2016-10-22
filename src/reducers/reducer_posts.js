@@ -1,5 +1,20 @@
 import { FETCH_POSTS } from '../actions/index';
 
+
+/*
+Thinking through ... the:
+STRUCTURE OF OUR STATE:
+1. "all"
+[{},{},...]
+List of blog posts
+3 fields
+
+2. "post"
+{}
+Active post
+4 fields
+*/
+
 // default initial values
 const INITIAL_STATE = {
   all: [], // also could have been simply null, but [] provides hint
@@ -11,6 +26,7 @@ export default function(state = INITIAL_STATE, action) {
     case FETCH_POSTS:
       return {
         ...state,
+        // The API call returns 'data' for our blog info:
         all: action.payload.data,
       };
 
@@ -19,15 +35,17 @@ export default function(state = INITIAL_STATE, action) {
   }
 }
 
-/*
-STRUCTURE OF OUR STATE:
-1. "all"
-[{},{},...]
-List of blog posts
-3 fields
+/* Chrome DevTools | Network | XHR:
 
-2. "post"
-{}
-Active post
-4 fields
+GET /api/posts?abcdefghijklmnop HTTP/1.1
+Host: reduxblog.herokuapp.com
+Accept: application/json, text/plain, ...
+Origin: http://127.0.0.1:8080
+DNT: 1
+Referer: http://127.0.0.1:8080/
+
+DNT? :
+https://en.wikipedia.org/wiki/Do_Not_Track#Effectiveness
+
+[{"id":36654,"title":null,"categories":null},{"id":36596,"title":"sup bro, check the detail","categories":"react redux"},{"id":36562,"title":"Title tennis fun","categories":"tennis"},{"id":36523,"title":"test title","categories":"fsdfds"},{"id":36521,"title":"test title","categories":"fsdfds"},{"id":36507,"title":"Test 2","categories":"rr"},{"id":36506,"title":"test 1","categories":"rr"},{"id":36479,"title":"dzdzdzdz","categories":"sasasas"},{"id":36476,"title":"qssqqssqsqqsqs","categories":null},{"id":36475,"title":"qssqqssqsqqsqs","categories":null}]
 */

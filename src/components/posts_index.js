@@ -1,14 +1,16 @@
-// *** Stateless functional component
+// *** next line is for when this was just a Stateless functional component:
 // import React from 'react';
-// ES6 Class:
+// Now upgraded to ES6 Class:
 import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 // not used ultimately:
 // import { bindActionCreators } from 'redux';
 import { fetchPosts } from '../actions/index';
+// Link becomes HTML <a /> tag (anchor)
+import { Link } from 'react-router';
 
-// Stateless functional component
+// WAS: Stateless functional component
 // import React from 'react';
 // export default () => {
 //   return <div>This is a LIST of blog posts ... </div>;
@@ -16,7 +18,7 @@ import { fetchPosts } from '../actions/index';
 
 
 /* ******** CONTAINER ******
-Change from mere Component to a Container:
+NOW: Change from mere Component to a Container:
 1. Container has data to attend to
 - talks to Redux / store / props / state
 2. So: import:
@@ -36,12 +38,12 @@ mo' magic
 */
 
 
-// ES6 Class:
+// NOW: ES6 Class:
 class PostsIndex extends Component {
 
   // On first page load
   // Not on subsequent ... (?)
-  // When I used browser to ReLoad it did redo this message ...
+  // However: When I used browser button to manually indicate a ReLoad, it did redo this message ... jus' sayin'
   componentWillMount() {
 
     console.log("WR__ Here you'd call an Action Creator! or Generator! to hey fetch posts!");
@@ -53,7 +55,16 @@ class PostsIndex extends Component {
   // ES6 Class:
   render () {
     return (
-      <div>ES6 Class PostsIndex Component - List of Blog Posts!</div>
+      <div>
+        <p>
+        ES6 Class PostsIndex Component - pretend this is a List of Blog Posts!
+        </p>
+        <div className="text-xs-right">
+          <Link to="/posts/new" className="btn btn-primary">
+            Add a Post!
+          </Link>
+        </div>
+      </div>
     );
   }
 }
