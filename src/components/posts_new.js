@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import { reduxForm } from 'redux-form';
+import { Link } from 'react-router';
 
 import { createPost } from '../actions'; // /index ?
 
@@ -66,6 +67,30 @@ Next up: doing something here on the client with the data we just socked away on
 */
 class PostsNew extends Component {
 
+  // CONTEXT stuff:
+  static contextTypes = {
+    // this router is the <Router /> up on the /src/index.js!
+    // That is the Context we will get.
+    router: PropTypes.object
+  }
+
+  // HELPER FUNC
+  // PROPS for the FORM (not 'this.props')
+  onSubmit (props) {
+    // to use this here, gotta BIND
+    this.props.createPost(props)
+    // Action generator (above) creates a PROMISE as its PAYLOAD
+    // we "dot" (.) add the next step:
+    .then( () => {
+      // Promise is done, back, all set. :o)
+      // Blog post has been created,
+      // so, navigate to the index page!
+      // by calling this.context.router.push with the path "/"
+      this.context.router.push('/');
+    })
+  }
+
+
   render () {
     // const {
     //   fields: {
@@ -112,28 +137,84 @@ handleSubmit WR__ orig code :o) :  handleSubmit(submitOrEvent) {
 */
 
 
+/*
+http://stackoverflow.com/questions/38476158/unknown-props-message-in-console-while-using-redux-form
+Change:
+{...title}
+to:
+{...title.input}
+
+Avoids Warning from React 15.2:
+Warning: Unknown props `initialValue`, `onUpdate`, ... `touched`, `visited` on <input> tag. ...
+
+UPDATE
+BUT: This fix creates another, bigger issue.
+The post no longer works!
+So screw it, I'm removing the .input, going back to what it was, and just living with the (still benign) "Warning."
+
+*/
 
     return (
-      <form onSubmit={handleSubmit(createPost)}>
+/*
+      <form onSubmit={handleSubmit(this.props.createPost)}>
+
+      I believe the LEFT onSubmit attribute MUST have that name (HTML form rule, I think)
+      The 'handleSubmit' I think MUST have that name (ReduxForm thing, I think?)
+      The 'this.onSubmit' HELPER Func I think does NOT have to have that (mildly confusing) name. We'll sheck it out...
+      */
+      <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
         <h3>Create a new post!</h3>
-        <div className="form-group">
+
+        <div className={`form-group ${title.touched && title.invalid ? 'has-danger' : ''}`}>
           <label>Title</label>
           <input type="text" className="form-control" {...title} />
 {/*          <input type="text" className="form-control" /> */}
 {/*          <Field type="text" className="form-control" /> */}
+          <div className="text-help">
+            {/*     // This title.error value came from errors.title down in validate()
+              */}
+            {title.touched ? title.error : ''}
+          </div>
         </div>
-        <div className="form-group">
+        <div className={`form-group ${categories.touched && categories.invalid ? 'has-danger' : ''}`}>
           <label>Categories</label>
           <input type="text" className="form-control" {...categories} />
+          <div className="text-help">
+            {categories.touched ? categories.error : ''}
+          </div>
         </div>
-        <div className="form-group">
+
+        <div className={`form-group ${content.touched && content.invalid ? 'has-danger' : ''}`}>
           <label>Content (What you Write)</label>
-          <input type="text" className="form-control" {...content} />
+          <textarea type="text" className="form-control" {...content} />
+          <div className="text-help">
+            {content.touched ? content.error : ''}
+          </div>
         </div>
         <button type="submit" className="btn btn-primary">Submitify</button>
+        <Link to="/" className="btn btn-danger">Cancel</Link>
       </form>
     );
   }
+}
+
+
+function validate (values) {
+  // to start, call 'em all Valid:
+  const errors = {};
+
+  if (!values.title) {
+    // This errors.title value becomes title.error up above
+    errors.title = 'Enter a title, pls. Grazie.';
+  }
+  if (!values.categories) {
+    errors.categories = 'Enter categories, pls. Grazie.';
+  }
+  if (!values.content) {
+    errors.content = 'Enter some content, pls. Grazie.';
+  }
+
+  return errors;
 }
 
 // export default PostsNew;
@@ -153,7 +234,8 @@ handleSubmit WR__ orig code :o) :  handleSubmit(submitOrEvent) {
   // name on left MUST be form
 export default reduxForm({
   form: 'PostsNewForm',
-  fields: [ 'title', 'categories', 'content' ]
+  fields: [ 'title', 'categories', 'content' ],
+  validate
 }, null, { createPost })(PostsNew);
 
 /*
