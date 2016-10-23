@@ -1,4 +1,4 @@
-import { FETCH_POSTS } from '../actions/index';
+import { FETCH_POSTS, FETCH_POST  } from '../actions/index';
 
 
 /*
@@ -13,6 +13,18 @@ List of blog posts
 {}
 Active post
 4 fields
+
+Note, re: above.
+Then, this whole "Structure" gets mapped or referenced or named or whatever you like, as:
+"posts" in the /src/reducers/index.js file.
+
+posts: postsReducer  <<< postsReducer being the contents of THIS file /src/reducers/reducer_posts.js
+
+Therefore, the state overall becomes:
+state.posts   --> N.B.  THIS thing is NOT the "list of posts" nor "all the posts". No. It is this structure:
+  state.posts.all  --> all of the posts
+  state.posts.post --> one post.  Somehow (don't ask me how) the state knows which one is current/active.
+
 */
 
 // default initial values
@@ -29,6 +41,11 @@ export default function(state = INITIAL_STATE, action) {
         // The API call returns 'data' for our blog info:
         all: action.payload.data,
       };
+    case FETCH_POST:
+      return {
+        ...state,
+        post: action.payload.data
+      }
 
     default:
       return state;

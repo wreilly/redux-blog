@@ -52,6 +52,21 @@ class PostsIndex extends Component {
     this.props.fetchPosts();
   }
 
+  renderPosts() {
+    // ?? Q. Where does this 'posts' come from?
+    // A. Oh. Down below in mapStateToProps we bothered to rename the STATE 'all' to PROPS 'posts'. And why not.
+    return this.props.posts.map( (post) => {
+      return (
+        <li className="list-group-item" key={post.id}>
+          <Link to={"posts/" + post.id}>
+            <span className="pull-xs-right">{post.categories}</span>
+            <strong>{post.title}</strong>
+          </Link>
+        </li>
+      )
+    })
+  }
+
   // ES6 Class:
   render () {
     return (
@@ -64,6 +79,10 @@ class PostsIndex extends Component {
             Add a Post!
           </Link>
         </div>
+        <h3>All Our Blessed POSTS</h3>
+        <ul className="list-group">
+          {this.renderPosts()}
+        </ul>
       </div>
     );
   }
@@ -75,10 +94,17 @@ class PostsIndex extends Component {
 // }
 
 
+function mapStateToProps(state) {
+  // LIST of all posts is on 'all', on the STATE
+  // Note also : state.posts is a STRUCTURE, that holds both state.posts.all (All of 'em) AND state.posts.post (the Active one). fwiw.
+  // Here, we sort of rename that "all" from STAT to become "posts" on PROPS. What the hell.
+  return { posts: state.posts.all };
+}
+
 // ES6 Class:
 // export default connect(null, mapDispatchToProps)(PostsIndex);
 /* ** REFACTOR ** */
 // export default connect(null,  { fetchPosts: fetchPosts })(PostsIndex);
 /* ** REFACTOR ** */
 // More ES6 shortcuttery:
-export default connect(null,  { fetchPosts })(PostsIndex);
+export default connect(mapStateToProps,  { fetchPosts })(PostsIndex);
