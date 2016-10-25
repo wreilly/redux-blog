@@ -1,216 +1,214 @@
-// /SRC/COMPONENTS/POSTS_NEW_REDUXFORMV6.JS
-// https://www.udemy.com/react-redux/learn/v4/questions/1710878
+/* LODASH REFACTORING - DONE
+Working through Lecture 99
+posts_new_reduxformV4LODASH.js
+D'oh!
+"Don't forget to (re-)npm install redux-form@4 !!! !!!"
+oy.
+*/
+
+// *** LODASH stuff:
+import _ from 'lodash';
 
 import React, { Component, PropTypes } from 'react';
-// Q. Hmm, no PropTypes, how get Router ?
-// A. YEPPERS, gots to puts it back.
-// import React, { Component } from 'react';
-
-// ADD:
-import { connect } from 'react-redux';
-
-// import { reduxForm } from 'redux-form';
-import { reduxForm, Field } from 'redux-form'; // FIELD is V6 !
-
+import { reduxForm } from 'redux-form';
 import { Link } from 'react-router';
 
 import { createPost } from '../actions';
 
-// *** Define Functions that *types* of form Fields will invoke:
+// *** LODASH stuff:
+// Ah-hah. My 'fieldName' is unnecessary:
+  // Very clever. "keys" grabs you those "fieldNames".
+  // fields: _.keys(FIELDS),
+  // Gives you array. Just what you need.
 
-// const renderInput = () => ();
-// Fat-arrow function, with implied { return () }
-// Param passed-in: object describing field
-const renderInput = (
-  {
-    input,
-    label,
-    type,
-    meta: {
-      touched,
-      invalid,
-      error
-    }
-  }
-) => {
-  return (
-    <div className={`form-group ${touched && invalid ? 'has-danger' : ''}`}>
-      <label>{label}</label>
-      <input className="form-control" {...input} type={type} />
-      <div className="text-help" style={ {color: 'red'} }>
-        { touched ? error : '' }
-      </div>
-    </div>
-  );
+const FIELDS = {
+  title: {
+    fieldName: 'titleName',
+    type: 'input',
+    label: 'Title',
+    //validate: field-level funct() // option
+  },
+  categories: {
+    fieldName: 'categoriesName',
+    type: 'input',
+    label: 'Add some categories',
+  },
+  content: {
+    fieldName: 'contentName',
+    type: 'textarea',
+    label: 'Enter content',
+  },
 }
 
-// Note: The 'error' herein is (magically) coming from the validate() funct we wrote and passed to ReduxForm. Cheers.
-const renderTextarea = (
-  {
-    input,
-    label,
-    type,
-    meta: {
-      touched,
-      invalid,
-      error
-    }
-  }
-) => (
-  <div className={`form-group ${touched && invalid ? 'has-danger' : ''}`}>
-    <label>{label}</label>
-    <textarea className="form-control" {...input} />
-    <div className="text-help" style={ {color: 'red'} }>
-      { touched ? error : '' }
-    </div>
-  </div>
-);
 
+// reduxForm provides us form stuff on props
 class PostsNew extends Component {
 
-  handleInitialize () {
-    const initData = {
-      "title": '',
-      "categories": '',
-      "content": '',
-    };
-    this.props.initialize(initData);
-  }
-
-  componentDidMount () {
-    this.handleInitialize();
-  }
-
-/* HMM. Does the solution from fellow student not incorporate the router to go to '/' after submit?
-Quite possibly. Let's see ...
-YEPPERS.
-I added (back) in our Promise-handling .then() :
-*/
-  handleFormSubmit (formProps) {
-    this.props.createPost(formProps)
-
-    .then( () => {
-      // console.log("WR__ Hmm, no Context, Q. Do we get back from the Promise something? Anything? ..."); // A. not really. nothing referenceable here (near as I can tell. fine.)
-      this.context.router.push('/');
-    })
-  }
-
-
-/* HMM. Does the solution from fellow student not incorporate the router to go to '/' after submit?
-Quite possibly. Let's see ...
-YEPPERS.
-I had to put (back) in this contextTypes stuff :
-*/
   // CONTEXT stuff:
   // TO GET ACCESS TO REACT ROUTER!
   static contextTypes = {
     // this router is the <Router /> up on the /src/index.js!
-    // That is the Context we will get.
     router: PropTypes.object
   }
 
-/* HMM. Does the solution from fellow student not incorporate the router to go to '/' after submit?
-Quite possibly. Let's see ...
-YEPPERS.
-*/
-  // // HELPER FUNC
-  // // PROPS for the FORM (not 'this.props')
-  // onSubmit (props) {
-  //   // to use this here, gotta BIND
-  //   this.props.createPost(props)
-  //   // Action generator (above) creates a PROMISE as its PAYLOAD
-  //   // we "dot" (.) add the next step:
-  //   .then( () => {
-  //     // Promise is done, back, all set. :o)
-  //     // Blog post has been created,
-  //     // so, navigate to the index page!
-  //     // by calling this.context.router.push with the path "/"
-  //     this.context.router.push('/');
-  //   })
-  // }
+  // HELPER FUNC
+  // PROPS for the FORM (not 'this.props')
+  onSubmit (props) {
 
+    // LODASH testing simplification
+    // alert("Yes you posted!");
+    // return;
+
+    // to use this here, gotta BIND
+    this.props.createPost(props)
+    // Action generator (above) creates a PROMISE as its PAYLOAD
+    // we "dot" (.) add the next step:
+    .then( () => {
+      this.context.router.push('/');
+    })
+  }
+
+  // Hmm, looks to be like that damned _.each() bit down below....
+    // _.each(FIELDS, (individualFieldObject, keyForThatIndividualFieldObject) => {
+  renderField (fieldConfig, field) {
+
+    // This "helper" is the object from reduxForm.
+    /* *******
+    e.g.
+    Object
+active:
+false
+defaultChecked:
+false
+defaultValue:
+undefined
+dirty:
+false
+error:
+"Enter title pls."
+initialValue:
+undefined
+invalid:
+true
+name:
+"title"
+onBlur:
+(event)
+onChange:
+(event)
+onDragStart:
+(event)
+onDrop:
+(event)
+onFocus:
+()
+onUpdate:
+(event)
+pristine:
+true
+touched:
+false
+valid:
+false
+visited:
+false
+
+    */
+    const fieldHelper = this.props.fields[field];
+
+
+    console.log("WR__ 99 this.props.fields ? ", this.props.fields); // Object that has title obj, categories obj, content obj
+    console.log("WR__ 98 this.props.fields[field] ? ", this.props.fields[field]); // Obj for title has name: "title" etc.
+    console.log("WR__ 97 this.props.fields.field ? ", this.props.fields.field); // undefined
+    console.log("WR__ 96 this.props.fields[field].name ? ", this.props.fields[field].name); // title  (good)
+// key={fieldHelper.name}
+// Notes:
+// 1) Gots to be on the outermost DIV of whatever you're stacking up in your list, kid. (outer div, not that other one just inside. who knew)
+// 2) Gots to be called "key" I'm sure, but, for super-duper-tip-top security and all that bananabiz, this attribute "key" is NOT shown in the view "source" /elements thing. Also Who Knew.
+    return (
+      <div key={fieldHelper.name} >
+
+        <div className={`form-group ${fieldHelper.touched && fieldHelper.invalid ? 'has-danger' : ''}`}>
+          <label>{fieldConfig.label}</label>
+          <fieldConfig.type type="text" className="form-control" {...fieldHelper} />
+          <div className="text-help">
+            {fieldHelper.touched ? fieldHelper.error : ''}
+          </div>
+        </div>
+        {/*
+        // <div className={`form-group ${title.touched && title.invalid ? 'has-danger' : ''}`}>
+        //   <label>Title</label>
+        //   <input type="text" className="form-control" {...title} />
+        //   <div className="text-help">
+        //     {title.touched ? title.error : ''}
+        //   </div>
+        // </div>
+        */}
+      </div>
+    )
+  }
 
   render () {
-    // WAS: const { fields: { title, categories, content }, handleSubmit } = this.props;
-    // As I understand it, this 'handleSubmit' is reserved word. Cheers.
-    const { handleSubmit } = this.props;
+    console.log("WR__ 00 this.props ? ", this.props);
+    console.log("WR__ 00A this.props.fields ? ", this.props.fields); // Object. title; content; categories on it.
+    console.log("WR__ 00B this.props.fields.categories ? ", this.props.fields.categories); // Object. name: "categories"
+    console.log("WR__ 00C this.props.fields.categories.label ? ", this.props.fields.categories.label); // undefined. all right.
 
+    const { fields: { title, categories, content }, handleSubmit } = this.props;
 
+    const wmTitle = this.props.title;
+    console.log("WR__ wmTitle this.props.title hmm, ", wmTitle); // undefined
 
-    // This was breaking owing to my having ReduxForm v6 vs. v4.
-    // ----------------------------
-    // console.log("title V6 Biz: WR__ : ");
-    // Sorry pal. "fields" isn't on props. let it go...
-    // console.log(this.props.fields.title); //
-    // console.log(this.props); // lot o' stuff, not for me.
-    // console.log(title); //
+    const wmTitle02 = this.props.fields.title;
+    console.log("WR__ wmTitle02 this.props.fields.title hmm, ", wmTitle02); // yep. whole object
 
-// yeah this shows you the function, the function written by Redux people, not me...
-    // console.log("handleSubmit WR__: ", handleSubmit); // what the hell is this ??
-/*
-handleSubmit WR__ orig code :o) :  handleSubmit(submitOrEvent) {
-	        var _this2 = this;
+    const wmTitle03 = title;
+    console.log("WR__ wmTitle03 title hmm, ", wmTitle03); //  yep. whole object
 
-	        var _props3 = this.props;
-	        var onSubmit = _props3.onSubmit;
-	        var fields = _props3.fields;
-	        var form…
-*/
+    const wmTitle04 = title[name];
+    console.log("WR__ wmTitle04 title[name] hmm, ", wmTitle04); //  undefined
+
+    const wmTitle05 = title.name;
+    console.log("WR__ wmTitle05 title.name hmm, ", wmTitle05); //  undefined
+
+    // console.log("WR__ 01 fields ? ", fields); // bundle.js:34546 Uncaught ReferenceError: fields is not defined(…)
+    console.log("WR__ 02 handleSubmit? ", handleSubmit);
+    // console.log("WR__ 03 fields.title ? ", fields.title);
+    console.log("WR__ 04 title ? ", title);
+
+    // *** LODASH stuff: (get our fields from other const ?) (no longer off this.props ??) Hmm.
+    // ??? const { handleSubmit } = this.props;
+
+    // console.log("title WR__ orig code :o) : ", title); //
 
     return (
-/*
-      <form onSubmit={handleSubmit(this.props.createPost)}>
+      <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
+        <h3>Create a new post!</h3>
 
-      I believe the LEFT onSubmit attribute MUST have that name (HTML form rule, I think)
-      The 'handleSubmit' I think MUST have that name (ReduxForm thing, I think?)
-      The 'this.onSubmit' HELPER Func I think does NOT have to have that (mildly confusing) name. We'll sheck it out...
-      */
-      // WAS: <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
-      <form onSubmit={handleSubmit(this.handleFormSubmit.bind(this))}>
-        <h3>Create a new post! (using V6 ReduxForm woot.)</h3>
-
-        <Field
-          label="Title"
-          name="title"
-          type="text"
-          component={renderInput} />
-
-        <Field
-          label="Categories"
-          name="categories"
-          type="text"
-          component={renderInput} />
-
-        <Field
-          label="Content"
-          name="content"
-          component={renderTextarea} />
+        {_.map(FIELDS, this.renderField.bind(this))}
 {/*
-        <div className={`form-group ${title.touched && title.invalid ? 'has-danger' : ''}`}>
-          <label>Title</label>
-          <input type="text" className="form-control" {...title} />
-          <div className="text-help">
-            {title.touched ? title.error : ''}
-          </div>
-        </div>
-*/}
-{/*
-        <div className={`form-group ${categories.touched && categories.invalid ? 'has-danger' : ''}`}>
-          <label>Categories</label>
-          <input type="text" className="form-control" {...categories} />
-          <div className="text-help">
-            {categories.touched ? categories.error : ''}
-          </div>
-        </div>
-*/}
-{/*
-        <div className={`form-group ${content.touched && content.invalid ? 'has-danger' : ''}`}>
-          <label>Content (What you Write)</label>
-          <textarea type="text" className="form-control" {...content} />
-          <div className="text-help">
-            {content.touched ? content.error : ''}
-          </div>
-        </div>
+        // <div className={`form-group ${title.touched && title.invalid ? 'has-danger' : ''}`}>
+        //   <label>Title</label>
+        //   <input type="text" className="form-control" {...title} />
+        //   <div className="text-help">
+        //     {title.touched ? title.error : ''}
+        //   </div>
+        // </div>
+        // <div className={`form-group ${categories.touched && categories.invalid ? 'has-danger' : ''}`}>
+        //   <label>Categories</label>
+        //   <input type="text" className="form-control" {...categories} />
+        //   <div className="text-help">
+        //     {categories.touched ? categories.error : ''}
+        //   </div>
+        // </div>
+        //
+        // <div className={`form-group ${content.touched && content.invalid ? 'has-danger' : ''}`}>
+        //   <label>Content (What you Write)</label>
+        //   <textarea type="text" className="form-control" {...content} />
+        //   <div className="text-help">
+        //     {content.touched ? content.error : ''}
+        //   </div>
+        // </div>
 */}
         <button type="submit" className="btn btn-primary">Submitify</button>
         <Link to="/" className="btn btn-danger">Cancel</Link>
@@ -219,24 +217,50 @@ handleSubmit WR__ orig code :o) :  handleSubmit(submitOrEvent) {
   }
 }
 
-// I believe validate is reserverd word
-// My code doesn't call it (explicitly)
-// This whole ReduxForm thing (magically) calls your 'validate()'. Cheers.
-// UNCHANGED for V6 vs. V4 ReduxForm. Cool.
+// *** LODASH stuff:
 function validate (values) {
-  // to start, call 'em all Valid:
+  // to start, call 'em all (in)Valid:
   const errors = {};
 
-  if (!values.title) {
-    // This errors.title value becomes title.error up above
-    errors.title = 'Enter a title, pls. Grazie.';
-  }
-  if (!values.categories) {
-    errors.categories = 'Enter categories, pls. Grazie.';
-  }
-  if (!values.content) {
-    errors.content = 'Enter some content, pls. Grazie.';
-  }
+// https://lodash.com/docs/4.16.4#forEach
+// "type" is the configuration object. Hmm.
+// Apparently you can call that fucking thing ANYTHING you care.
+// Sorry. "type" is a STUPID choice.
+// "field" is the fieldname.  yaddaya...
+// Apparently you can call that fucking thing ANYTHING you care, ALSO.
+// But, you can NOT leave off the first one. Hmmph.
+
+/* Okay, so for this collection, the _.each grabs the title: {} for "each" "foobartype" below, and it grabs the goddamned KEY for the "bazbatfield" below.
+Sorry (not really): WHY (the fuck) cannot the professor make these kinds of things PLAIN.
+Or for that god-damned matter the god-damned & useless lodash documenstupidfuckingtation.
+https://lodash.com/docs/4.16.4#forEach
+const FIELDS = {
+  title: {
+    fieldName: 'titleName',
+    type: 'input',
+    label: 'Title',
+  }, ...
+*/
+
+  // _.each(FIELDS, (type, field) => {
+  // _.each(FIELDS, (individualFieldObject, keyForThatIndividualFieldObject) => {
+  _.each(FIELDS, (foobartype, bazbatfield) => {
+    console.log("WR__ having the fun. foobartype, bazbatfield: ", foobartype, bazbatfield);
+    if (!values[bazbatfield]) {
+      errors[bazbatfield] = `Enter ${bazbatfield} pls.`;
+    }
+  });
+
+  // if (!values.title) {
+  //   // This errors.title value becomes title.error up above
+  //   errors.title = 'Enter a title, pls. Grazie.';
+  // }
+  // if (!values.categories) {
+  //   errors.categories = 'Enter categories, pls. Grazie.';
+  // }
+  // if (!values.content) {
+  //   errors.conten  t = 'Enter some content, pls. Grazie.';
+  // }
 
   return errors;
 }
@@ -256,25 +280,16 @@ function validate (values) {
 
   // name on right is just unique; doesn't have to match Component name...
   // name on left MUST be form
-// WAS: (V4)
-// export default reduxForm({
-//   form: 'PostsNewForm',
-//   fields: [ 'title', 'categories', 'content' ],
-//   validate
-// }, null, { createPost })(PostsNew);
-
-// NEW V6
-const myReduxedFormFunctThatTakesAFormComponent = reduxForm(
-  {
-    form: 'PostsNewForm',
-    validate,
-  }
-);
-
-export default connect(
-  null, // no mapStateToProps
-  { createPost } // mapDispatchToProps. Puts createPost onto props (as I understand it...)
-)(myReduxedFormFunctThatTakesAFormComponent(PostsNew));
+export default reduxForm({
+  form: 'PostsNewForm',
+  // *** LODASH stuff:
+  // "fields:" here has to be an Array of Strings
+  // Very clever. "keys" grabs you those "fieldNames".
+    // Gives you array. Just what you need.
+  fields: _.keys(FIELDS),
+  // fields: ['title', 'categories', 'content'],
+  validate
+}, null, { createPost })(PostsNew);
 
 /*
 user types something in ...
